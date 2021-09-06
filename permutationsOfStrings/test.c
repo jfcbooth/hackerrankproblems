@@ -7,24 +7,28 @@ void swap(char** arr, const int pos1, const int pos2);
 
 int next_permutation(int n, char **s)
 {
+    int swapped;
     char **cur = malloc(11 * sizeof(char) * n);
     memcpy(cur, s, 11*sizeof(char) * n);
-    for(int i = n-1; i > 1; i++){
-        if(lexicographic_sort(s[i-1], s[i]) == 0){ // swap is needed
-            swap(s, i, i-1);
-            if(memcmp(cur, s, 11*sizeof(char)*n) == 0){ // if new s == cur, run next_permutation again
-                next_permutation(n, s);
-            }
-           return 1;
-        }
+    swapped = find_swapped_point(n ,s); // find point we have permutated to
+    if(swapped == n-1){ // completely sorted
+        swap(s, n-1, n-2);
+        return 1;
     }
-    return 0;
-	/**
-	* Complete this method
-	* Return 0 when there is no next permutation and 1 otherwise
-	* Modify array s to its next permutation
-	*/
+    for(int i = swapped+1; i < n; i++){
+    }
+        
 }
+
+int find_swapped_point(int n, char **s){
+    for(int i = 0; i < n-1; i++){
+        if(lexicographic_sort(s[i], s[i+1]) == 1){
+            return i;
+            }
+    }
+    return n-1;
+}
+
 
 int lexicographic_sort(const char* a, const char* b) {
 
@@ -54,8 +58,7 @@ void swap(char** arr, const int pos1, const int pos2){
 int main()
 {
 	char **s;
-	int n;
-	scanf("%d", &n);
+	int n;	scanf("%d", &n);
 	s = calloc(n, sizeof(char*));
 	for (int i = 0; i < n; i++)
 	{
