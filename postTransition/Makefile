@@ -6,4 +6,4 @@ run: build
 	./test < input.txt
 
 build:
-	gcc -g test.c -o test -lm
+	gcc -g test.c -o test
