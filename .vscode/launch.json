@@ -5,6 +5,25 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "queryingTheDocument",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "/home/user/HackerRankProblems/queryingTheDocument/test",
+            "args": ["<", "input.txt"],
+            "stopAtEntry": true,
+            "cwd": "/home/user/HackerRankProblems/queryingTheDocument/",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ]
+        },   
+        {
             "name": "smallTrianglesLargeTriangles",
             "type": "cppdbg",
             "request": "launch",
