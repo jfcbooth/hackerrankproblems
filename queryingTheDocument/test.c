@@ -6,6 +6,7 @@
 #define MAX_PARAGRAPHS 5
 
 char* kth_word_in_mth_sentence_of_nth_paragraph(char**** document, int k, int m, int n) {
+    //printf("here %s\n", document[0][0][0]);
     return document[k-1][m-1][n-1];
 }
 
@@ -46,7 +47,7 @@ char**** get_document(char* text){
     char**** doc = malloc(sizeof(char***)); // pointer for the doc
     char*** paragraph = malloc(sizeof(char**)); // pointer to point to the paragraphs
     char** sentence = malloc(sizeof(char*)); // made up of words
-    for(int i = 0; i < strlen(text); i++){
+    for(int i = 0; i < strlen(text)+1; i++){
         if(text[i] == ' '){
             sentence = realloc(sentence, sizeof(char*)*(num_words+2));
             sentence[num_words++] = get_word(&text[i-word_len], word_len);
@@ -62,6 +63,16 @@ char**** get_document(char* text){
             paragraph[num_sentences] = NULL;
             num_words = 0;
         } else if(text[i] == '\n' || text[i] == '\0'){
+            if(word_len > 0 || num_words > 0){
+                sentence = realloc(sentence, sizeof(char*)*(num_words+2));
+                sentence[num_words++] = get_word(&text[i-word_len], word_len);
+                sentence[num_words] = NULL;
+                word_len = 0;
+                paragraph = realloc(paragraph, sizeof(char**)*num_sentences+2);
+                paragraph[num_sentences++] = get_sentence(sentence, num_words);
+                paragraph[num_sentences] = NULL;
+                num_words = 0;
+            }
             doc = realloc(doc, sizeof(char***)*num_paragraphs+2);
             doc[num_paragraphs++] = get_paragraph(paragraph, num_sentences);
             doc[num_paragraphs] = NULL;
@@ -71,67 +82,8 @@ char**** get_document(char* text){
         }
     }
 
-    //char(*)[10])paragraph[];
-    // for(int i = 0; paragraph[i]; i++){
-    //     for(int j = 0; paragraph[i][j]; j++){
-    //         printf("%s ", paragraph[i][j]);
-    //     }
-    //    printf("\n");
-    // }
-    // for(int i = 0; paragraph[i] != '\0'; i++){
-    //     for(int j = 0; paragraph[i][j] != '\0'; j++){
-    //         printf("%s\n", paragraph[i][j]);
-
-    //     }
-    // }
+    return doc;
 }
-
-// char**** get_document(char* text) {
-// 	char**** doc = malloc(sizeof(char***)); // pointer for the doc
-// 	char*** paragraph = malloc(sizeof(char**)); // pointer to point to the paragraphs
-// 	char** sentence = malloc(sizeof(char*)); // made up of words
-// 	char* word = malloc(sizeof(char)*1000);
-
-// 	int num_paragraphs = 0;
-// 	int num_sentences = 0;
-// 	int num_words = 0;
-// 	int num_chars = 0;
-// 	for(int i = 0; i < strlen(text); i++){
-// 		if(text[i] == ' '){ // end of word
-//             strncpy(word, &text[i-num_chars], num_chars);
-//             word[num_chars] = '\0';
-//             sentence = realloc(sentence, sizeof(char*)*num_words+1); // add space for new word
-//             sentence[num_words] = malloc(sizeof(char)*num_chars+1);
-//             memcpy(sentence[num_words], word, (num_chars+1)*sizeof(char));
-//             num_words++;
-//             num_chars = 0;
-//         } else if(text[i] == '.'){
-//             memcpy(paragraph[num_sentences], sentence, sizeof(char**)*num_sentences+1);
-//             num_sentences++;
-//             num_words = 0;
-// 		// } else if(text[i] == '\n'){
-//         //     memcpy(doc[num_paragraphs], paragraph, sizeof(char**)*num_paragraphs+1);
-//         //     num_paragraphs++;
-//         //     num_sentences = 0;
-// 		} else{
-//             num_chars++;
-//         }
-
-// 	}
-
-
-	// int num_paragraphs = 0;
-	// for(int i = 0; i < strlen(text)+1; i++){
-	// 	num_paragraphs+=(text[i] == '\n' || text[i] == '\0') ? 1 : 0;
-	// }
-	// char**** docs = malloc(sizeof(char****)*num_paragraphs); // allocate space for 2 pointers
-
-
-	// for(int i = 0; i < num_paragraphs; i++){
-	// 	docs[i] = malloc(sizeof(char***)); // allocate space for a pointer to each paragraph
-	// }
-
-// }
 
 
 char* get_input_text() {	
