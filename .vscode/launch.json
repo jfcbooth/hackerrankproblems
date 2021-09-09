@@ -4,6 +4,26 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
+        
+        {
+            "name": "structuringTheDocument",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "/home/user/HackerRankProblems/structuringTheDocument/test",
+            "args": ["<", "input.txt"],
+            "stopAtEntry": true,
+            "cwd": "/home/user/HackerRankProblems/structuringTheDocument/",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ]
+        },   
         {
             "name": "queryingTheDocument",
             "type": "cppdbg",
