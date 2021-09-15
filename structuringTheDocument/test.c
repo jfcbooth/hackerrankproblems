@@ -24,90 +24,113 @@ struct document {
     int paragraph_count;//denotes number of paragraphs in a document
 };
 
-struct word get_word(char* text, int word_len){
+void reallocate(struct word* word, int size){
+    struct word *temp = malloc(sizeof(struct word));
+    temp = realloc(word->data, size);
+    if(temp == NULL){
+        printf("allocation error\n");
+        exit(1);
+    } else{
+        word = temp;
+    }
+}
+
+struct word get_word(char *text, int size){
+    //reallocate(word, size+1);
     struct word word;
-    word.data = malloc(sizeof(char)*word_len+1);
-    strncpy(word.data, text, word_len);
-    word.data[word_len] = '\0';
+    word.data = malloc(sizeof(char *)*(size+1));
+    strncpy(word.data, text, size);
+    word.data[size] = '\0';
     return word;
+}
+
+
+int find_sentence_size(struct sentence s){
+    int size = 0;
+    for(int i = 0; i < s.word_count; i++){
+        size+=(sizeof(char)*strlen(s.data[i].data));
+    }
+    return size;
 }
 
 struct sentence get_sentence(struct sentence sentence){
     struct sentence s;
-    s.data = malloc(sizeof(struct word*)*(sentence.word_count+1));
-    memcpy(s.data, sentence.data, sizeof(struct word*)*(sentence.word_count+1));
-    //s.data = sentence.data;
+    memcpy(s.data, sentence.data, find_sentence_size(sentence));
     s.word_count = sentence.word_count;
     return s;
 }
 
 struct document get_document(char* text) {
-    struct sentence sentence;
-    sentence.data = malloc(sizeof(struct word*));
-    sentence.word_count = 0;
-    struct paragraph paragraph;
-    paragraph.data = malloc(sizeof(struct sentence*));
-    paragraph.sentence_count = 0;
     struct document doc;
-    doc.data = malloc(sizeof(struct paragraph*));
     doc.paragraph_count = 0;
 
+    struct paragraph paragraph;
+    paragraph.sentence_count = 0;
+    doc.data = NULL; // get enough space for 1 pointer to a paragraph
+
+    struct sentence sentence;
+    sentence.word_count = 0;
+    paragraph.data =  NULL; // get enough space for 1 pointer to a sentence
+
+
     int word_len = 0;
-    for(int i = 0; i < strlen(text)+1; i++){
-        switch(text[i]){
-            case ' ':
-                sentence.data = realloc(sentence.data, sizeof(struct word)*(sentence.word_count+1));
-                sentence.data[sentence.word_count] = get_word(&text[i-word_len], word_len);
+    void* ptr;
+    for(int i = 0; i <= strlen(text); i++){
+       switch(text[i]){
+            case '\n':
+            case '\0':
+                sentence.data = realloc(sentence.data, sizeof(struct word*)*(sentence.word_count+1)); // add space in the sentence for X pointers to X words
+                sentence.data[sentence.word_count] = get_word(&text[i-word_len], word_len); // copy the word to the pointer
                 sentence.word_count++;
                 word_len = 0;
+                paragraph.data = realloc(paragraph.data, sizeof(struct sentence)*(paragraph.sentence_count+1)); // add space for X pointers to X sentences
+                paragraph.data[paragraph.sentence_count] = sentence;
+                //paragraph.sentence_count++;
+                //printf("Sentence count %d\n", paragraph.sentence_count);
+                sentence.data = NULL;
+                sentence.word_count = 0; // reset the sentence
+                // end paragraph
+                doc.data = realloc(doc.data, sizeof(struct paragraph)*(doc.paragraph_count+1));
+                doc.data[doc.paragraph_count] = paragraph;
+                doc.paragraph_count++;
+                paragraph.data = NULL;
+                paragraph.sentence_count = 0;
                 break;
             case '.':
-                sentence.data = realloc(sentence.data, sizeof(struct word)*(sentence.word_count+1));
-                sentence.data[sentence.word_count] = get_word(&text[i-word_len], word_len);
+                sentence.data = realloc(sentence.data, sizeof(struct word*)*(sentence.word_count+1)); // add space in the sentence for X pointers to X words
+                sentence.data[sentence.word_count] = get_word(&text[i-word_len], word_len); // copy the word to the pointer
                 sentence.word_count++;
                 word_len = 0;
-                paragraph.data = realloc(paragraph.data, sizeof(struct sentence*)*paragraph.sentence_count+1);
-                paragraph.data[paragraph.sentence_count] = get_sentence(sentence);
+                paragraph.data = realloc(paragraph.data, sizeof(struct sentence)*(paragraph.sentence_count+1)); // add space for X pointers to X sentences
+                paragraph.data[paragraph.sentence_count] = sentence;
                 paragraph.sentence_count++;
-                sentence.word_count = 0;
+                sentence.data = NULL;
+                sentence.word_count = 0; // reset the sentence
                 break;
-            // case '\n':
-            // case '\0':
-            //     break;
+            case ' ':
+                sentence.data = realloc(sentence.data, sizeof(struct word*)*(sentence.word_count+1)); // add space in the sentence for X pointers to X words
+                sentence.data[sentence.word_count] = get_word(&text[i-word_len], word_len); // copy the word to the pointer
+                sentence.word_count++;
+                word_len = 0;
+                break;
             default:
                 word_len++;
                 break;
-        }
-    }
-    // for(int i = 0; i < paragraph.sentence_count; i++){
-    //     for(int j = 0; j < paragraph.data[i].word_count; j++){
-    //         printf("%s\n", paragraph.data[i].data[j].data);
-    //     }
-    // }
-
-    for(int i = 0; i < sentence.word_count; i++){
-        printf("%s\n", sentence.data[i].data);
-    }
-
-    for(int i = 0; i < sentence.word_count; i++){
-        free(sentence.data[i].data);
-    }
-    free(sentence.data);
-    free(paragraph.data);
-    free(doc.data);
-
+       }
+   }
+   return doc;
 }
 
 struct word kth_word_in_mth_sentence_of_nth_paragraph(struct document Doc, int k, int m, int n) {
-
+    return Doc.data[n-1].data[m-1].data[k-1];
 }
 
 struct sentence kth_sentence_in_mth_paragraph(struct document Doc, int k, int m) { 
-
+    return Doc.data[m-1].data[k-1];
 }
 
 struct paragraph kth_paragraph(struct document Doc, int k) {
-
+    return Doc.data[k-1];
 }
 
 
@@ -162,34 +185,34 @@ int main()
 {
     char* text = get_input_text();
     struct document Doc = get_document(text);
-    free(text);
-    // int q;
-    // scanf("%d", &q);
+    // free(text);
+    int q;
+    scanf("%d", &q);
 
-    // while (q--) {
-    //     int type;
-    //     scanf("%d", &type);
+    while (q--) {
+        int type;
+        scanf("%d", &type);
 
-    //     if (type == 3){
-    //         int k, m, n;
-    //         scanf("%d %d %d", &k, &m, &n);
-    //         struct word w = kth_word_in_mth_sentence_of_nth_paragraph(Doc, k, m, n);
-    //         print_word(w);
-    //     }
+        if (type == 3){
+            int k, m, n;
+            scanf("%d %d %d", &k, &m, &n);
+            struct word w = kth_word_in_mth_sentence_of_nth_paragraph(Doc, k, m, n);
+            print_word(w);
+        }
 
-    //     else if (type == 2) {
-    //         int k, m;
-    //         scanf("%d %d", &k, &m);
-    //         struct sentence sen= kth_sentence_in_mth_paragraph(Doc, k, m);
-    //         print_sentence(sen);
-    //     }
+        else if (type == 2) {
+            int k, m;
+            scanf("%d %d", &k, &m);
+            struct sentence sen= kth_sentence_in_mth_paragraph(Doc, k, m);
+            print_sentence(sen);
+        }
 
-    //     else{
-    //         int k;
-    //         scanf("%d", &k);
-    //         struct paragraph para = kth_paragraph(Doc, k);
-    //         print_paragraph(para);
-    //     }
-    //     printf("\n");
-    // }     
+        else{
+            int k;
+            scanf("%d", &k);
+            struct paragraph para = kth_paragraph(Doc, k);
+            print_paragraph(para);
+        }
+        printf("\n");
+    }     
 }

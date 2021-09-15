@@ -6,7 +6,7 @@ run: build
 	./test < input.txt
 
 build:
-	gcc -g test.c -o test -lm
+	gcc-8 -g test.c -o test -lm
 
 valgrind:
 	gcc -g test.c -o test
