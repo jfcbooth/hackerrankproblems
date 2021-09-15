@@ -5,18 +5,41 @@
 int lexicographic_sort(const char* a, const char *b);
 void swap(char** arr, const int pos1, const int pos2);
 
-int next_permutation(int n, char **s)
+void reverse(char **s, int start, int end){
+    char *temp;
+    while(start<end){
+        temp = s[start];
+        s[start] = s[end];
+        s[end] = temp;
+        start++;
+        end--;
+    }
+
+    return;
+}
+
+int next_permutation(int n, char **s) // n = 3
 {
-    int swapped;
-    char **cur = malloc(11 * sizeof(char) * n);
-    memcpy(cur, s, 11*sizeof(char) * n);
-    swapped = find_swapped_point(n ,s); // find point we have permutated to
-    if(swapped == n-1){ // completely sorted
-        swap(s, n-1, n-2);
-        return 1;
+    // find k
+    int k = n-2; // k = 1
+    while((lexicographic_sort(s[k], s[k+1]) == 1)){
+        if(k == 0){
+            return 0; // no permutation exists
+        }
+        k--;
     }
-    for(int i = swapped+1; i < n; i++){
+    // find i
+    int i = n-1;
+    while((lexicographic_sort(s[k], s[i]) == 1) && (i > k)){
+        i--;
     }
+    // swap the two
+    swap(s, k, i);
+    //printf("%d %d\n", k+1, n-1);
+    // reverse the remaining
+    reverse(s, k+1, n-1);
+    //printf("here\n");
+    return 1;
         
 }
 
